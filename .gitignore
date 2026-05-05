@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Environments
+.env
+.venv/
+venv/
+env/
+
+# Large binary artifacts (tracked by Git LFS if needed)
+artifacts/models/*.pkl
+artifacts/models/*.joblib
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Logs
+logs/*.log
+mlruns/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# VS Code / PyCharm
+.vscode/
+.idea/
