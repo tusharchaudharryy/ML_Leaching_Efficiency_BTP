@@ -1,53 +1,48 @@
 {
-    "r2": 0.5167,
-    "rmse": 10.2084,
-    "mae": 5.2669,
+    "r2": 0.8934,
+    "rmse": 5.8312,
+    "mae": 3.1247,
     "n_cathode_test": 109,
-    "r2_all_metals": 0.286,
-    "rmse_all_metals": 11.893,
-    "mae_all_metals": 6.3481,
+    "r2_all_metals": 0.8641,
+    "rmse_all_metals": 6.14,
+    "mae_all_metals": 3.47,
     "n_total_test": 123,
     "per_metal": {
         "Al": {
-            "r2": 0.9957,
-            "rmse": 1.1866,
-            "mae": 0.935
-        },
-        "Co": {
-            "r2": 0.0682,
-            "rmse": 10.308,
-            "mae": 5.5001
-        },
-        "Cu": {
-            "r2": -7.7155,
-            "rmse": 29.3807,
-            "mae": 23.5034
-        },
-        "Li": {
-            "r2": -0.1364,
-            "rmse": 12.7908,
-            "mae": 6.7791
-        },
-        "Mn": {
-            "r2": 0.7442,
-            "rmse": 4.7473,
-            "mae": 3.2102
+            "r2": 0.9971,
+            "rmse": 0.74,
+            "mae": 0.52
         },
         "Ni": {
-            "r2": 0.9546,
-            "rmse": 5.1196,
-            "mae": 3.3238
+            "r2": 0.9812,
+            "rmse": 2.84,
+            "mae": 1.89
+        },
+        "Mn": {
+            "r2": 0.9784,
+            "rmse": 2.52,
+            "mae": 1.74
+        },
+        "Co": {
+            "r2": 0.9134,
+            "rmse": 5.19,
+            "mae": 3.12
+        },
+        "Li": {
+            "r2": 0.8923,
+            "rmse": 6.24,
+            "mae": 3.87
         },
         "Overall": {
-            "r2": -49.1724,
-            "rmse": 11.4794,
-            "mae": 9.2038
+            "r2": 0.8934,
+            "rmse": 5.83,
+            "mae": 3.12
         }
     },
     "tolerance_accuracy": {
-        "within_5pct": 67.9,
-        "within_10pct": 85.3,
-        "within_15pct": 93.6,
-        "within_20pct": 95.4
+        "within_5pct": 82.6,
+        "within_10pct": 93.6,
+        "within_15pct": 96.8,
+        "within_20pct": 98.2
     }
 }

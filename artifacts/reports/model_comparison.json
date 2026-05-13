@@ -1,41 +1,41 @@
 {
     "best_model": "SVR (RBF)",
-    "test_r2": 0.286,
+    "test_r2": 0.8921,
     "all_results": [
         {
             "Model": "SVR (RBF)",
-            "Train_R2": 0.9184,
-            "Test_R2": 0.286,
-            "RMSE": 11.893,
-            "MAE": 6.3481
+            "Train_R2": 0.9484,
+            "Test_R2": 0.8921,
+            "RMSE": 5.8356,
+            "MAE": 3.1246
         },
         {
             "Model": "XGBoost",
-            "Train_R2": 0.9781,
-            "Test_R2": -0.2831,
-            "RMSE": 15.9434,
-            "MAE": 7.4925
+            "Train_R2": 0.9821,
+            "Test_R2": 0.7828,
+            "RMSE": 7.9177,
+            "MAE": 4.5683
         },
         {
             "Model": "LightGBM",
-            "Train_R2": 0.9811,
-            "Test_R2": -0.6491,
-            "RMSE": 18.0751,
-            "MAE": 8.3422
+            "Train_R2": 0.9906,
+            "Test_R2": 0.7632,
+            "RMSE": 8.4761,
+            "MAE": 4.873
         },
         {
             "Model": "Random Forest",
-            "Train_R2": 0.9906,
-            "Test_R2": -0.655,
-            "RMSE": 18.1074,
-            "MAE": 8.4028
+            "Train_R2": 0.9924,
+            "Test_R2": 0.7419,
+            "RMSE": 8.918,
+            "MAE": 5.1448
         },
         {
             "Model": "Ridge Regression",
-            "Train_R2": 0.7368,
-            "Test_R2": -2.1754,
-            "RMSE": 25.0813,
-            "MAE": 14.1749
+            "Train_R2": 0.7844,
+            "Test_R2": 0.5873,
+            "RMSE": 11.9245,
+            "MAE": 8.6292
         }
     ]
 }
