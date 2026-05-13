@@ -1,7 +1,7 @@
 """
 prediction_pipeline.py
 =======================
-Inference pipeline — accepts a structured input describing one
+Inference pipeline -- accepts a structured input describing one
 leaching experiment, applies the saved preprocessor, runs the
 saved best model, and returns the predicted efficiency (%).
 
@@ -49,6 +49,8 @@ Quick example
 
 import os
 import sys
+import pathlib
+
 import numpy as np
 import pandas as pd
 from dataclasses import dataclass, asdict
@@ -56,14 +58,16 @@ from dataclasses import dataclass, asdict
 from src.utils.logger import get_logger
 from src.utils.exception import LeachingException
 from src.utils.common import load_object
+from src.utils.features import engineer_features
 
 logger = get_logger(__name__)
 
-_PREPROCESSOR_PATH = os.path.join("artifacts", "models", "preprocessor.joblib")
-_BEST_MODEL_PATH   = os.path.join("artifacts", "models", "best_model.joblib")
+_PROJECT_ROOT      = pathlib.Path(__file__).parents[2]
+_PREPROCESSOR_PATH = str(_PROJECT_ROOT / "artifacts" / "models" / "preprocessor.joblib")
+_BEST_MODEL_PATH   = str(_PROJECT_ROOT / "artifacts" / "models" / "best_model.joblib")
 
 
-# ── Input schema ──────────────────────────────────────────────────────
+# -- Input schema -------------------------------------------------------------
 
 @dataclass
 class LeachingInput:
@@ -71,7 +75,7 @@ class LeachingInput:
     One row of input for a leaching efficiency prediction.
 
     All fields mirror the columns produced by the augmentation and
-    labelling pipeline.
+    labelling pipeline.  __post_init__ validates physical bounds.
     """
     # Experimental conditions
     Concentration_M:          float
@@ -108,23 +112,67 @@ class LeachingInput:
     EHS_Total:                float
     GreenScore:               float
 
+    def __post_init__(self) -> None:
+        """Validate physical plausibility of inputs at the system boundary."""
+        if self.Concentration_M <= 0:
+            raise ValueError(
+                f"Concentration_M must be > 0, got {self.Concentration_M}"
+            )
+        if self.Temperature_C < 0:
+            raise ValueError(
+                f"Temperature_C must be >= 0 (Celsius), got {self.Temperature_C}"
+            )
+        if self.Time_hrs <= 0:
+            raise ValueError(f"Time_hrs must be > 0, got {self.Time_hrs}")
+        if self.SLR_gL <= 0:
+            raise ValueError(f"SLR_gL must be > 0, got {self.SLR_gL}")
+        if self.Has_Reductant not in (0, 1):
+            raise ValueError(
+                f"Has_Reductant must be 0 or 1, got {self.Has_Reductant}"
+            )
+        for flag_name in (
+            "RDKIT_Has_Carboxyl", "RDKIT_Has_Hydroxyl",
+            "RDKIT_Has_Halogen", "RDKIT_Has_Phosphorus", "RDKIT_Is_Ionic",
+        ):
+            val = getattr(self, flag_name)
+            if val not in (0, 1):
+                raise ValueError(f"{flag_name} must be 0 or 1, got {val}")
+        if not (0 <= self.GreenScore <= 100):
+            raise ValueError(
+                f"GreenScore must be in [0, 100], got {self.GreenScore}"
+            )
+
     def to_dataframe(self) -> pd.DataFrame:
         """Convert the input dataclass to a single-row DataFrame."""
         return pd.DataFrame([asdict(self)])
 
 
-# ── Prediction pipeline ───────────────────────────────────────────────
+# -- Prediction pipeline ------------------------------------------------------
 
 class PredictPipeline:
     """
     Loads saved preprocessor + best model from artifacts/ and
     produces a prediction for a LeachingInput instance.
+
+    Raises FileNotFoundError with a helpful message if the training
+    pipeline has not been run yet.
     """
 
     def __init__(self):
+        missing = [
+            p for p in (_PREPROCESSOR_PATH, _BEST_MODEL_PATH)
+            if not os.path.exists(p)
+        ]
+        if missing:
+            raise FileNotFoundError(
+                "Required model artifacts are missing:\n"
+                + "\n".join(f"  {p}" for p in missing)
+                + "\nRun the training pipeline first:\n"
+                "  python -m src.pipeline.training_pipeline"
+            )
         self.preprocessor = load_object(_PREPROCESSOR_PATH)
         self.model        = load_object(_BEST_MODEL_PATH)
-        logger.info("PredictPipeline initialised — preprocessor + model loaded.")
+        logger.info("PredictPipeline initialised -- preprocessor + model loaded.")
 
     def predict(self, data: LeachingInput) -> float:
         """
@@ -136,21 +184,14 @@ class PredictPipeline:
 
         Returns
         -------
-        float : predicted efficiency in [0, 100] %
+        float : predicted efficiency clipped to [0, 100] %
         """
         try:
             df = data.to_dataframe()
 
-            # Replicate feature engineering from DataTransformation
-            eps = 1e-6
-            df["log_Time_hrs"]   = np.log1p(df["Time_hrs"].clip(lower=eps))
-            df["log_SLR_gL"]     = np.log1p(df["SLR_gL"].clip(lower=eps))
-            df["log_Conc"]       = np.log1p(df["Concentration_M"].clip(lower=eps))
-            df["Conc_x_Temp"]    = df["Concentration_M"] * df["Temperature_C"]
-            df["Temp_x_logTime"] = df["Temperature_C"]   * df["log_Time_hrs"]
-            df["inv_Temp_K"]     = 1000.0 / (df["Temperature_C"].clip(lower=1.0) + 273.15)
+            # Apply the same feature engineering used during training
+            df = engineer_features(df)
 
-            # Preprocess + predict
             X    = self.preprocessor.transform(df)
             pred = float(self.model.predict(X)[0])
             pred = float(np.clip(pred, 0.0, 100.0))

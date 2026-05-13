@@ -1,33 +1,40 @@
 """
 application.py
 ==============
-Flask web application — exposes two endpoints:
+Flask web application -- exposes three endpoints:
 
-  GET  /           → renders the prediction form (templates/index.html)
-  POST /predict    → runs PredictPipeline and returns the result
-  POST /train      → re-trains the full pipeline and returns metrics
+  GET  /        -> renders the prediction form (templates/index.html)
+  POST /predict -> runs PredictPipeline and returns the result
+  POST /train   -> re-trains the full pipeline and returns metrics
+
+Environment variables (optional, set in .env or shell):
+  HOST        Host to bind to (default: 127.0.0.1)
+  PORT        Port to listen on (default: 5000)
+  FLASK_DEBUG Enable debug mode -- set to "1" for development only
 
 Run locally:
     python application.py
-
-The app runs on http://0.0.0.0:5000 by default.
-Set the PORT environment variable to override.
 """
 
 import os
 import sys
 
+from dotenv import load_dotenv
 from flask import Flask, request, render_template, jsonify
+from flask_cors import CORS
 
 from src.pipeline.prediction_pipeline import PredictPipeline, LeachingInput
 from src.pipeline.training_pipeline   import TrainingPipeline
 from src.utils.logger import get_logger
 
+load_dotenv()
+
 logger = get_logger(__name__)
 app = Flask(__name__)
+CORS(app)  # allow cross-origin requests (e.g. from a separate frontend)
 
 
-# ── Routes ────────────────────────────────────────────────────────────
+# -- Routes -------------------------------------------------------------------
 
 @app.route("/", methods=["GET"])
 def index():
@@ -86,6 +93,22 @@ def predict():
             prediction=f"{prediction:.2f}",
         )
 
+    except FileNotFoundError as exc:
+        # Artifacts missing -- give the user a clear action to take
+        msg = str(exc)
+        logger.error(msg)
+        if request.is_json:
+            return jsonify({"error": msg}), 503
+        return render_template("index.html", error=msg)
+
+    except (ValueError, KeyError) as exc:
+        # Bad input -- 400, not 500
+        msg = str(exc)
+        logger.warning(f"Invalid input: {msg}")
+        if request.is_json:
+            return jsonify({"error": msg}), 400
+        return render_template("index.html", error=msg)
+
     except Exception as exc:
         logger.error(f"Prediction error: {exc}", exc_info=True)
         if request.is_json:
@@ -107,9 +130,15 @@ def train():
         return jsonify({"status": "error", "message": str(exc)}), 500
 
 
-# ── Entry point ───────────────────────────────────────────────────────
+# -- Entry point --------------------------------------------------------------
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    logger.info(f"Starting Flask app on port {port}")
-    app.run(host="0.0.0.0", port=port, debug=False)
+    host  = os.environ.get("HOST", "127.0.0.1")
+    port  = int(os.environ.get("PORT", 5000))
+    debug = os.environ.get("FLASK_DEBUG", "0") == "1"
+
+    if debug:
+        logger.warning("Running in DEBUG mode -- do not use in production.")
+
+    logger.info(f"Starting Flask app on {host}:{port}")
+    app.run(host=host, port=port, debug=debug)

@@ -7,6 +7,7 @@ Install in editable mode (recommended for development):
     pip install -e .
 """
 
+import os
 from setuptools import setup, find_packages
 
 
@@ -29,7 +30,7 @@ setup(
         "End-to-end ML pipeline for predicting organic acid leaching "
         "efficiency of metals from spent lithium-ion batteries."
     ),
-    long_description=open("README.md").read() if __import__("os").path.exists("README.md") else "",
+    long_description=open("README.md").read() if os.path.exists("README.md") else "",
     long_description_content_type="text/markdown",
     packages=find_packages(),
     python_requires=">=3.9",

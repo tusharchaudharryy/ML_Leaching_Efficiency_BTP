@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell -Command \"\\(Get-Content 'C:\\\\Users\\\\Tushar\\\\Desktop\\\\final_report.tex'\\).Count; \\(Get-Item 'C:\\\\Users\\\\Tushar\\\\Desktop\\\\final_report.tex'\\).Length / 1KB\")",
+      "Bash(python -c ' *)",
+      "Bash(python -m src.pipeline.training_pipeline)",
+      "Bash(grep -n \"fig_prediction_diagnostics\\\\|fig_model_comparison\\\\|fig_feature_engineering\\\\|fig_shap\\\\|fig_correlation\\\\|fig_evaluation\\\\|fig_dataset\\\\|fig_pipeline\\\\|fig_augmentation\\\\|Results\\\\|result\\\\|chapter.*8\\\\|section.*8\\\\|\\\\\\\\\\\\\\\\chapter{\" C:/Users/Tushar/Desktop/final_report.tex)",
+      "Read(//tmp/**)",
+      "Read(//c/Users/Tushar/AppData/Local/Temp/claude/**)",
+      "Bash(grep -c \"\\\\\\\\\\\\\\\\begin{\" C:/Users/Tushar/Desktop/final_report.tex)",
+      "Bash(grep -c \"\\\\\\\\\\\\\\\\end{\" C:/Users/Tushar/Desktop/final_report.tex)",
+      "Bash(grep -n \"\\\\\\\\\\\\\\\\algorithm\\\\|\\\\\\\\\\\\\\\\begin{algorithm}\\\\|\\\\\\\\\\\\\\\\includepdf\\\\|\\\\\\\\\\\\\\\\pdfpages\\\\|\\\\\\\\\\\\\\\\begin{algorithmic}\" C:/Users/Tushar/Desktop/final_report.tex)",
+      "Bash(grep -n \"\\\\\\\\\\\\\\\\chapter\\\\|\\\\\\\\\\\\\\\\section\\\\|\\\\\\\\\\\\\\\\subsection\" \"C:/Users/Tushar/Desktop/final_report.tex\")"
+    ]
+  }
+}

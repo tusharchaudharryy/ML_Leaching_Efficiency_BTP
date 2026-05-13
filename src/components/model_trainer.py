@@ -93,7 +93,7 @@ class ModelTrainer:
                 verbose=-1,
             ),
             "Ridge Regression": Ridge(alpha=1.0),
-            "SVR (RBF)": SVR(kernel="rbf", C=10.0, epsilon=0.1),
+            "SVR (RBF)": SVR(kernel="rbf", C=100.0, epsilon=0.1),
         }
 
     @staticmethod
@@ -107,7 +107,7 @@ class ModelTrainer:
             "XGBoost":          {"n_estimators": 300, "learning_rate": 0.05, "max_depth": 6},
             "LightGBM":         {"n_estimators": 300, "learning_rate": 0.05, "num_leaves": 63},
             "Ridge Regression": {"alpha": 1.0},
-            "SVR (RBF)":        {"C": 10.0, "epsilon": 0.1},
+            "SVR (RBF)":        {"C": 100.0, "epsilon": 0.1},
         }
 
     # ── Public ────────────────────────────────────────────────────────
